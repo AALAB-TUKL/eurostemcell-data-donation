@@ -1,0 +1,46 @@
+#welcome{
+  padding:25px 40px;
+  margin:10px;
+  border-bottom: 1px solid grey;
+  font-size: large;
+}
+
+.option_item{
+  padding:25px 40px;
+  margin:10px;
+  border-bottom: 1px solid grey;
+}
+.note{
+  font-style:italic;
+}
+input[type="radio"]{
+  margin:10px;
+  vertical-align: middle;
+}
+select{
+  margin:10px;
+}
+div.option_item>label{
+  font-weight: bold;
+  font-size: 1.2em;
+}
+input~label{
+  vertical-align: middle;
+}
+
+fieldset{
+    border:0;
+    padding:0;
+}
+
+div.option_item input:checked + label{
+  font-weight: bold;
+}
+.hidden{
+    display:none;
+}
+
+div.missing{
+  border:'2px solid orange';
+  border-radius:'10px';
+}

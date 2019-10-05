@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/settings/options.css">
+    <script type="application/javascript" src="/src/browser-polyfill.js"></script>
+  </head>
+
+  <body>
+    <div id="thankyou"></div>
+<!-- <button id="checkAll" type="button" name="button">Check All</button> -->
+    <form id ="survey" class = "hidden">
+      <div id="welcome" class="hidden">Thank you for your decision to contribute to the EuroStemCell Data Donation Project! Please carefully fill out the survey to start your donation. Once data is submitted, you cannot change it anymore. If you made a mistake, please reinstall the plugin.</div>
+        <!-- <button type="submit">Save</button> -->
+        <div class="option_item">
+          <label for="par_radio">Are you or someone close to you impacted by Parkinson's Disease?</label><br>
+          <fieldset id="par_radio">
+            <input required id="par_yes_pa" type="radio" name="par" value="1"><label for="par_yes_pa">I'm a patient.</label>
+            <input required id="par_yes_ca" type="radio" name="par" value="2" aria-labelledby="par_yes_ca_label" aria-describedby="carer_tooltip" aria-required="false"/><label id="par_yes_ca_label" for="par_yes_ca">I'm a carer.*</label>
+            <input required id="par_no" type="radio" name="par" value="0"><label for="par_no">No</label><br><br>
+            <span id="carer_tooltip" class="note" role="tooltip" aria-hidden="true">
+              *A carer is anyone, including children and adults who looks after a family member, partner or friend who needs help because of their illness, frailty, disability, a mental health problem or an addiction and cannot cope without their support. The care they give is unpaid. (as defined by <a href="https://www.england.nhs.uk/commissioning/comm-carers/carers/"><abbr title="National Health Service">NHS</abbr> England</a>)
+            </span>
+          </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="msc_radio">Are you or someone close to you impacted by Multiple Sclerosis?</label><br>
+            <fieldset id="msc_radio">
+              <input required id="msc_yes_pa" type="radio" name="msc" value="1"><label for="msc_yes_pa">I'm a patient.</label>
+              <input required id="msc_yes_ca" type="radio" name="msc" value="2" aria-labelledby="msc_yes_ca_label" aria-describedby="carer_tooltip" aria-required="false"><label id="msc_yes_ca_label" for="msc_yes_ca">I'm a carer.*</label>
+              <input required id="msc_no" type="radio" name="msc" value="0"><label for="msc_no">No</label>
+            </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="dia_radio">Are you or someone close to you impacted by a form of Diabetes (Type I or Type II)?</label><br>
+            <fieldset id="dia_radio">
+              <input required id="dia_yes_pa" type="radio" name="dia" value="1"><label for="dia_yes_pa">I'm a patient.</label>
+              <input required id="dia_yes_ca" type="radio" name="dia" value="2" aria-labelledby="dia_yes_ca_label" aria-describedby="carer_tooltip" aria-required="false"><label id="dia_yes_ca_label" for="dia_yes_ca">I'm a carer.*</label>
+              <input required id="dia_no" type="radio" name="dia" value="0"><label for="dia_no">No</label>
+            </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="med_radio">Are you a stem cell researcher or medical professional?</label><br>
+          <fieldset id="med_radio">
+            <input required id="med_yes" type="radio" name="med" value="true"><label for="med_yes">Yes</label>
+            <input required id="med_no" type="radio" name="med" value="false"><label for="med_no">No</label>
+          </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="res_radio">What is your country of residence?*</label><br>
+          <fieldset id="res_radio">
+            <input required id="res_au" type="radio" name="res" value="au"><label for="res_au">Australia</label>
+            <input required id="res_ca" type="radio" name="res" value="ca"><label for="res_ca">Canada</label>
+            <input required id="res_uk" type="radio" name="res" value="uk"><label for="res_uk">United Kingdom</label>
+            <input required id="res_us" type="radio" name="res" value="us"><label for="res_us">United States Of America</label>
+            <input required id="res_ot" type="radio" name="res" value="ot"><label for="res_ot">Other</label>
+          </fieldset>
+            <br>
+          <span class="note">*Note: At this point we are only studying the impact of Google advertising in the four English speaking countries above. We will consider data from other countries to guide future research.</span>
+        </div>
+        <div class="option_item">
+          <label for="age_radio">Your age range</label><br>
+              <fieldset id="age_radio">
+                <input required id="age_0" type="radio" name="age" value="0"><label for="age_0">18-29</label>
+                <input required id="age_1" type="radio" name="age" value="1"><label for="age_1">30-39</label>
+                <input required id="age_2" type="radio" name="age" value="2"><label for="age_2">40-49</label>
+                <input required id="age_3" type="radio" name="age" value="3"><label for="age_3">50-59</label>
+                <input required id="age_4" type="radio" name="age" value="4"><label for="age_4">60-69</label>
+                <input required id="age_5" type="radio" name="age" value="5"><label for="age_5">69+</label>
+              </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="gender_radio">Your gender</label><br/>
+          <fieldset id="gender_radio">
+            <input required id="female" type="radio" name="gender" value="f"><label for ="female">Female</label><br>
+            <input required id="male" type="radio" name="gender" value="m"><label for ="male">Male</label><br>
+            <input required id="other" type="radio" name="gender" value="d"><label for ="other">Other</label><br>
+            <input required id="nosay" type="radio" name="gender" value="n"><label for ="nosay">Prefer not to say</label>
+          </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="c_freq_radio">How often do you use your computer, laptop, tablet and/or smartphone?</label><br>
+          <fieldset id="c_freq_radio">
+            <input required id="c_daily+_freq" type="radio" name="c_freq" value="3"><label for ="c_daily+_freq">Daily (More than 2 times a day)</label><br>
+            <input required id="c_daily-_freq" type="radio" name="c_freq" value="2"><label for ="c_daily-_freq">Daily (Less than 2 times a day)</label><br>
+            <input required id="c_weekly_freq" type="radio" name="c_freq" value="1"><label for ="c_weekly_freq">Weekly</label><br>
+            <input required id="c_monthly_freq" type="radio" name="c_freq" value="0"><label for ="c_monthly_freq">Monthly</label><br>
+          </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="g_freq_radio">How often do you use Google Search?</label><br>
+          <fieldset id="g_freq_radio">
+            <input required id="g_daily+_freq" type="radio" name="g_freq" value="3"><label for ="g_daily+_freq">Daily (More than 2 times a day)</label><br>
+            <input required id="g_daily-_freq" type="radio" name="g_freq" value="2"><label for ="g_daily-_freq">Daily (Less than 2 times a day)</label><br>
+            <input required id="g_weekly_freq" type="radio" name="g_freq" value="1"><label for ="g_weekly_freq">Weekly</label><br>
+            <input required id="g_monthly_freq" type="radio" name="g_freq" value="0"><label for ="g_monthly_freq">Monthly</label><br>
+          </fieldset>
+        </div>
+        <div class="option_item">
+          <label for="contacted">Have you ever paid for or enquired about stem cell treatments?</label><br>
+          <fieldset id="contacted_radio">
+            <input required id="contacted_no" type="radio" name="contacted" value="true"><label for="contacted_no">No</label>
+            <input required id="contacted_yes" type="radio" name="contacted" value="false"><label for="contacted_yes">Yes</label><br>
+          </fieldset>
+            <span class="note">If Yes: We’d like to hear about your experience. Please contact us <a href="https://www.eurostemcell.org/datadonate/contact">here</a>.</span>
+        </div>
+        <button id = "submit" type="submit">Save</button><span id="submit_failed"></span>
+
+    </form>
+    <script src="options.js"></script>
+  </body>
+
+</html>
