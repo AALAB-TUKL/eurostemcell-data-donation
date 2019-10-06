@@ -7,7 +7,6 @@ let settings = config.settings;
 
 let localStorageData;
 let lastSubmit;
-let delay = 1000;
 let optionsPage;
 
 let intervalId, firstRunId;
@@ -33,6 +32,7 @@ async function updateLocalStorageData(){
 // checks if the user is signed into a study and does so if this is not the case.
 // returns user's study ID if the checks above return true
 async function checkSettings(){
+  let signCheck;
   await validateVersion();
   console.log("check data:");
   console.log(localStorageData);
@@ -41,7 +41,8 @@ async function checkSettings(){
       optionsPage = browser.runtime.openOptionsPage();
       return false;
   }else if (typeof localStorageData.user.isSigned == "undefined" || !localStorageData.user.isSigned) {
-      if(await signUpForStudy()){
+      signCheck=signUpForStudy();
+      if(await signCheck){
         console.log("User is now signed up for Study");
       }else{
         console.log("User could not be signed up for study");
@@ -56,17 +57,18 @@ async function checkSettings(){
 
 //signs a new user up for participation and receives the respective participant ID
 function signUpForStudy(){
+  let save;
   console.log("Sign up for study with: ");
   console.log(JSON.stringify(localStorageData.user));
   let url = localStorageData.settings.serverAddr + '/SEW_Edinburgh_2019/newParticipant';
   let xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = async function() {
+
     if (this.readyState == 4 && this.status == 200) {
       console.log(this);
       try {
         let response = JSON.parse(this.responseText);
-        console.log(this);
-        browser.storage.local.set({
+        save = browser.storage.local.set({
           user:{
             isSigned:true,
             formFilled:true,
@@ -79,39 +81,45 @@ function signUpForStudy(){
         console.log("Sign up failed due to wrong server response: "+e);
         return false
       }
+      await save;
       console.log("Signed up");
-      return true
+      startStudyScheduler();
+      return true;
     }
   };
   xhttp.onerror = ((e)=>{console.log("Sign up failed");console.error(e);return false});
   xhttp.open("POST", url);
   xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhttp.send(JSON.stringify(localStorageData.user));
-  //return false;
 }
 
 //opens window in which the crawl script is being executed with the passed keywords
 async function runQuery(keywords){
-  console.log("runQuery "+ keywords.length + " times with: "+keywords);
-  browser.storage.local.get("hide_popup").then(b=>{
-    if (!b.hide_popup || typeof b.hide_popup == "undefined") {
-      console.log("popup shows");
-      // browser.browserAction.setPopup(
-      //   {popup:"./popup.html"}
-      // )
-    }else {
-      console.log("popup hidden");
-      // browser.browserAction.setPopup(
-      //   {popup:null}
-      // )
-    }
-  })
+  if (typeof keywords == 'undefined') {
+    console.log("Query unsuccessful: keywords undefined");
+    return false;
+  }
+//toggle info popup during query
+  // browser.storage.local.get("hide_popup").then(b=>{
+  //   if (typeof b.hide_popup != "undefined" && b.hide_popup) {
+  //     console.log("popup hidden");
+  //     browser.browserAction.setPopup(
+  //       {popup:null}
+  //     )
+  //   }else {
+  //     console.log("popup shows");
+  //     browser.browserAction.setPopup(
+  //       {popup:"./popup.html"}
+  //     )
+  //   }
+  // })
+
   let results = []
   let index = 0;
   let queryPromises = [];
   let shuffledKeywords;
   shuffledKeywords = shuffleArray(keywords);
-  console.log(shuffledKeywords);
+  console.log("runQuery with: "+shuffledKeywords);
   for (const query of shuffledKeywords){
     index++;
     let promise = new Promise((resolve,reject)=>{
@@ -148,7 +156,7 @@ async function runQuery(keywords){
 }
 
 // initiates a first query, then starts an interval at the next valid schedule time that fires runQuery according to schedule
-async function startStudyScheduler(keywords){
+async function startStudyScheduler(){
   if (schedulerRunning) {
     return true;
   }
@@ -160,6 +168,7 @@ async function startStudyScheduler(keywords){
   }
   //uncomment to enable rotating keyword selection
   //let keywords = rotateKeywords(allKeywords);
+  let keywords = localStorageData.user.keywords
   runQuery(keywords);
   console.log("First query fired:");
   schedulerRunning = true;
@@ -241,10 +250,12 @@ async function validateVersion(){
 //handles browserAction clicks. fires startStudyScheduler if scheduler is not running, opens study_thanks.html if it has
 async function handleBrowserAction () {
   console.log("browser action triggered");
+
+
   if (await checkSettings()) {
     if (!schedulerRunning) {
       if (typeof localStorageData != 'undefined' && typeof localStorageData.user != 'undefined') {
-        startStudyScheduler(localStorageData.user.keywords);
+        startStudyScheduler();
       }
     }else {
         browser.tabs.create({url:'/src/study_thanks.html'})
@@ -254,7 +265,7 @@ async function handleBrowserAction () {
     return
 
   }
-};
+}
 
 //relays message from options page
 async function handleMessage(message){
