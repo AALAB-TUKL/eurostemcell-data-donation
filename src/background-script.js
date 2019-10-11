@@ -293,7 +293,7 @@ function handleInstall(details){
 
 function handleStartup(){
   console.log("Startup registered");
-  startStudyScheduler();
+  setTimeout(startStudyScheduler,1000*30);
 }
 //find next scheduled study time by comparing schedule from config data to current hour
 function getNextInterval(time,schedule) {
