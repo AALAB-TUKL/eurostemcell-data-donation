@@ -1,6 +1,7 @@
 import {config,setConfig} from "/src/config.js";
 console.log(config);
 
+let testing = false;
 let selectors = config.selectors;
 let user = config.user;
 let settings = config.settings;
@@ -21,8 +22,8 @@ async function updateLocalStorageData(){
     if (typeof localStorageData.settings == 'undefined') {
       browser.storage.local.set({settings:settings,selectors:selectors});
     }
-    console.log("updated storage data");
-    console.log((typeof localStorageData == undefined) ? "localStorageData undefined" : localStorageData );return localStorageData;
+    let s = (typeof localStorageData == undefined) ? 'localStorageData undefined' : JSON.stringify(localStorageData);
+    console.log('updated storage data' + '\n' + s);
   })
   .catch((e)=>{console.error(e);})
   await promise;
@@ -34,9 +35,13 @@ async function updateLocalStorageData(){
 async function checkSettings(){
   let signCheck;
   await validateVersion();
-  console.log("check data:");
-  console.log(localStorageData);
-  if (typeof localStorageData == "undefined" || !localStorageData.hasOwnProperty("user")|| typeof localStorageData.user.formFilled == "undefined"||!localStorageData.user.formFilled) {
+  console.log("check data:"+JSON.stringify(localStorageData));
+  if (typeof localStorageData == 'undefined' || !localStorageData.hasOwnProperty("privacy") || !localStorageData.privacy) {
+    console.log("User needs to accept privacy statement");
+    displayPrivacyPage();
+    return false;
+  }
+  if (!localStorageData.hasOwnProperty("user")|| typeof localStorageData.user.formFilled == "undefined"||!localStorageData.user.formFilled) {
       console.log("formFilled undefined or false: open options");
       optionsPage = browser.runtime.openOptionsPage();
       return false;
@@ -268,24 +273,33 @@ async function handleBrowserAction () {
 }
 
 //relays message from options page
-async function handleMessage(message){
-  if (message.action =="exit_options") {
+async function handleMessage(request, sender, sendResponse){
+  if (!request.hasOwnProperty('action')) {
+    return;
+  }
+  switch (request.action){
+    case "exit_options":
     console.log("exit_options and signUpForStudy");
     if (await checkSettings()) {
       startStudyScheduler();
     }
     //window.close(request.action.id);
     //console.log("oprions page closed");
-  }
+    break;
+    case "testing?":
+      return {testing:testing};
+    break;
+    }
 }
 
 //callback for install event
 function handleInstall(details){
     browser.storage.local.set(config);
-    displayWelcomePage();
+    displayPrivacyPage();
     validateVersion();
     if (details.temporary) {
       console.log("Welcome! to Testing!");
+      testing = true;
     }else {
       console.log("Welcome to EuroStemCell DataDonation");
     }
@@ -320,9 +334,9 @@ function rotateKeywords(){
 }
 
 //show a welcome page at install
-function displayWelcomePage(){
-    browser.tabs.create({url:"/src/study_startup.html"})
-    .then(()=>{console.log("Welcome Page displayed");})
+function displayPrivacyPage(){
+    browser.tabs.create({url:"/src/study_privacy.html"})
+    .then(()=>{console.log("Privacy Page displayed");})
 }
 
 //helper function to shuffle keywords array
@@ -337,6 +351,10 @@ function shuffleArray(array) {
   return shuffledArray;
 }
 
+
+function getMode(){
+  return testing;
+}
 browser.runtime.onStartup.addListener(handleStartup);
 browser.runtime.onInstalled.addListener(handleInstall);
 browser.browserAction.onClicked.addListener(handleBrowserAction);

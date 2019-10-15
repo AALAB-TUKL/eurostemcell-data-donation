@@ -1,4 +1,5 @@
-let topLevelDomain, currentData, bp;
+let topLevelDomain, currentData, bp,button;
+button = document.querySelector("#checkAll")
 browser.storage.local.get().then((localStorageData)=>{
   currentData = localStorageData;
 //check, if user has filled the form and hide form if already done
@@ -17,6 +18,7 @@ if (typeof localStorageData.user == 'undefined' || typeof localStorageData.user.
   toHTML += 'With this study ID, your donation can be sent anonymously.';
   toHTML += "You can check out your last submission with a click on the plugin's icon (usually in the top right corner of the window).";
   document.getElementById('thankyou').textContent = toHTML;
+  button.style.display = 'none'
   }
 })
 
@@ -112,7 +114,27 @@ function validateForm(){
 document.getElementById('submit').addEventListener("click", validateForm);
 document.forms['survey'].addEventListener("submit", saveOptions);
 // utility to check all boxes for quick testing
-// function checkAll(){
-//   Array.prototype.forEach.call(document.querySelectorAll('div.option_item'), function(item, index){item.querySelector("input").checked = true})
-// }
-//document.querySelector("#checkAll").addEventListener("click",checkAll);
+function checkAll(){
+  Array.prototype.forEach.call(document.querySelectorAll('div.option_item'), function(item, index){item.querySelector("input").checked = true})
+}
+
+function handleResponse(message) {
+  if (message.hasOwnProperty('testing') && message.testing) {
+    button.addEventListener("click",checkAll);
+    button.style.display = "block";
+    console.log("checkAll visible");
+  }else {
+    console.log("checkAll not visible");
+  }
+}
+
+function handleError(error) {
+  console.log(`Error: ${error}`);
+}
+function notifyBackgroundPage(e) {
+  var sending = browser.runtime.sendMessage({
+    action: 'testing?'
+  });
+  sending.then(handleResponse, handleError);
+}
+notifyBackgroundPage();
