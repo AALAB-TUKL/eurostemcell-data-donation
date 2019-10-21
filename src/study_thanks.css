@@ -1,7 +1,9 @@
 /* Style the tab */
 button#toOptions{
+  position:fixed;
+  right:15px;
+  bottom:10px;
   margin:20px;
-  display: block;
   background-color: #4CAF50; /* Green */
   border: none;
   color: white;
@@ -10,6 +12,7 @@ button#toOptions{
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
+
 }
 div.text{
   margin:20px;

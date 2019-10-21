@@ -25,9 +25,8 @@ if (typeof localStorageData.user == 'undefined' || typeof localStorageData.user.
 
 //saves all form input to local storage
 function saveOptions(e) {
-  e.preventDefault();
   console.log("submit clicked");
-
+  e.preventDefault();
   if (validateForm()) {
     switch (document.querySelector('input[name="res"]:checked').value) {
       case 'au':
@@ -59,6 +58,7 @@ function saveOptions(e) {
         cfreq: document.querySelector('input[name="c_freq"]:checked').value,
         gfreq: document.querySelector('input[name="g_freq"]:checked').value,
         con: document.querySelector('input[name="contacted"]:checked').value,
+        city: document.querySelector('input[name="city"]:checked+label input[name=city_name]').value,
         formFilled:true
       },
          settings:Object.assign(currentData.settings,{searchProvider: 'https://www.google.'+topLevelDomain})
@@ -92,8 +92,9 @@ function validateForm(){
       option_items[i].style.border= '2px solid orange';
       option_items[i].style.borderRadius= '10px';
       let submitFailed = document.getElementById('submit_failed');
+      let submitFailedText = "Some questions have not been answered. Please review the survey."
       submitFailed.setAttribute("style", "padding:0px 20px; margin-left:30px; font-weight: bold; border-radius:10px; border: 2px solid orange;");
-      submitFailed.innerHTML="Some questions have not been answered. Please review the survey.";
+      submitFailed.textContent=submitFailedText;
     }else{
       option_items[i].style.border= 'border-bottom: 1px solid grey;';
       option_items[i].style.borderRadius= '0px';
@@ -113,6 +114,7 @@ function validateForm(){
 
 document.getElementById('submit').addEventListener("click", validateForm);
 document.forms['survey'].addEventListener("submit", saveOptions);
+
 // utility to check all boxes for quick testing
 function checkAll(){
   Array.prototype.forEach.call(document.querySelectorAll('div.option_item'), function(item, index){item.querySelector("input").checked = true})

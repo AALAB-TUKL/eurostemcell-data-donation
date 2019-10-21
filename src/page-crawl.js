@@ -96,17 +96,15 @@ function crawlGooglePage(){
         throw "searchResults with length 0"
       }
       //console.log("Search results:");
-      let penalty = 0; //to correct index of the following loop if an infobox appears in order to adjust search results
+      // let penalty = 0; //to correct index of the following loop if an infobox appears in order to adjust search results
       Array.prototype.forEach.call(searchResults, function (result, index) {
       if (result.querySelector('div.s span.st')) {
         searchResults_formatted[index] = {};
         searchResults_formatted[index].url = result.querySelector(selectors.results.url).getAttribute('href');
         searchResults_formatted[index].title = result.querySelector(selectors.results.title).innerText;
         searchResults_formatted[index].content = result.querySelector(selectors.results.content).innerText;
-        searchResults_formatted[index].position = index + 1 - penalty;
+        searchResults_formatted[index].position = index + 1;
         //console.log(searchResults_formatted[index].position + ".: " + searchResults_formatted[index].title + "(" + searchResults_formatted[index].url + "): "+ searchResults_formatted[index].content);
-      }else {
-        penalty+=1;
       }
       })
     } catch (e) {

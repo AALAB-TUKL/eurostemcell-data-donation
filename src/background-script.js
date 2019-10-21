@@ -1,11 +1,6 @@
 import {config,setConfig} from "/src/config.js";
-console.log(config);
 
 let testing = false;
-let selectors = config.selectors;
-let user = config.user;
-let settings = config.settings;
-
 let localStorageData;
 let lastSubmit;
 let optionsPage;
@@ -16,17 +11,34 @@ let schedulerRunning = false;
 updateLocalStorageData();
 
 //updates globally accessible localStorageData whenever there is a storage change event
-async function updateLocalStorageData(){
+async function updateLocalStorageData(changes,area){
   let promise = browser.storage.local.get().then((data)=>{localStorageData = data})
   .then(()=>{
     if (typeof localStorageData.settings == 'undefined') {
-      browser.storage.local.set({settings:settings,selectors:selectors});
+      browser.storage.local.set({settings:config.settings,selectors:config.selectors});
     }
-    let s = (typeof localStorageData == undefined) ? 'localStorageData undefined' : JSON.stringify(localStorageData);
-    console.log('updated storage data' + '\n' + s);
   })
   .catch((e)=>{console.error(e);})
   await promise;
+
+  try {
+    let changedItems = Object.keys(changes);
+    let changedKeys = "";
+    for (let key of changedItems) {
+      changedKeys += key+" ";
+    }
+    // for (var item of changedItems) {
+    //   console.log(item + " has changed:");
+    //   console.log("Old value: ");
+    //   console.log(changes[item].oldValue);
+    //   console.log("New value: ");
+    //   console.log(changes[item].newValue);
+    // }
+    console.log("Changed: "+changedKeys);
+    console.log(changes);
+  } catch (e) {
+    console.log("unchanged: "+e);
+  }
 }
 
 // checks if the survey was already answered and opens the options page if it has not.
@@ -35,7 +47,10 @@ async function updateLocalStorageData(){
 async function checkSettings(){
   let signCheck;
   await validateVersion();
-  console.log("check data:"+JSON.stringify(localStorageData));
+  console.log("check data");
+  if (testing) {
+    console.log(localStorageData);
+  }
   if (typeof localStorageData == 'undefined' || !localStorageData.hasOwnProperty("privacy") || !localStorageData.privacy) {
     console.log("User needs to accept privacy statement");
     displayPrivacyPage();
@@ -53,11 +68,11 @@ async function checkSettings(){
         console.log("User could not be signed up for study");
         return false;}
       }else if (localStorageData.user.isSigned) {
-          console.log("User alrady signed up");
+          console.log("User already signed up and ready to run study");
         }
   browser.browserAction.setIcon({path:'/icons/esc_plugin_icon_48.png'});
   browser.browserAction.setTitle({title:'You are signed up and the plugin is donating data every 4 hours.\nClick to see your last donation.'});
-  return localStorageData.user.isSigned;
+  return true;
 }
 
 //signs a new user up for participation and receives the respective participant ID
@@ -92,7 +107,7 @@ function signUpForStudy(){
       return true;
     }
   };
-  xhttp.onerror = ((e)=>{console.log("Sign up failed");console.error(e);return false});
+  xhttp.onerror = ((e)=>{console.log("Sign up failed");console.error(e);console.log(response);return false});
   xhttp.open("POST", url);
   xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhttp.send(JSON.stringify(localStorageData.user));
@@ -162,31 +177,39 @@ async function runQuery(keywords){
 
 // initiates a first query, then starts an interval at the next valid schedule time that fires runQuery according to schedule
 async function startStudyScheduler(){
-  if (schedulerRunning) {
-    return true;
-  }
   if (await checkSettings()) {
-    console.log("ready for study");
+    console.log("Scheduler: ready for study");
   }else{
-    console.log("User not ready to run query");
+    console.log("Scheduler: User not ready to run query");
     return false;
   }
-  //uncomment to enable rotating keyword selection
-  //let keywords = rotateKeywords(allKeywords);
+  let alarmName = "studyScheduler"
   let keywords = localStorageData.user.keywords
+  if (typeof await browser.alarms.get(alarmName) != 'undefined') {
+    console.log("Scheduler already running");
+    return true;
+  }
+
+  console.log("Initial query");
   runQuery(keywords);
-  console.log("First query fired:");
-  schedulerRunning = true;
+
   let now = new Date();
   let nextRun = getNextInterval(now, localStorageData.settings.schedule);
-  let timeTillTask = nextRun - now;
-  console.log("timeTillTask: "+ timeTillTask.toString());
-  setTimeout(function(){
-    firstRunId = runQuery(keywords);
-    intervalId = createInterval(keywords,4*60*60*1000)
-  },timeTillTask);
-  console.log("Scheduler started with schedule: "+localStorageData.settings.schedule.toString());
+  browser.alarms.create(alarmName,{
+    when:nextRun,
+    periodInMinutes:60*4
+  })
+  schedulerRunning = true;
+  console.log("Alarm created: "+alarmName);
+  // let timeTillTask = nextRun - now;
+  // console.log("timeTillTask: "+ timeTillTask.toString());
+  // setTimeout(function(){
+  //   firstRunId = runQuery(keywords);
+  //   intervalId = createInterval(keywords,4*60*60*1000)
+  // },timeTillTask);
+  // console.log("Scheduler started with schedule: "+localStorageData.settings.schedule.toString());
 }
+
 //send study data to server
 function submitData(data){
   let url = localStorageData.settings.serverAddr + '/SEW_Edinburgh_2019/newEntry';
@@ -211,6 +234,7 @@ function submitData(data){
 //sends a get request to the server and compares version numbers.
 //updates stored config data if necessary
 async function validateVersion(){
+  console.log("Validate");
   let update = updateLocalStorageData();
   await update;
   let url = localStorageData.settings.serverAddr + '/SEW_Edinburgh_2019/update';
@@ -221,11 +245,11 @@ async function validateVersion(){
     if (this.readyState == 4 && this.status == 200) {
       let promise = new Promise((resolve,reject)=>{
       try {
-        console.log(this)
         response = JSON.parse(this.responseText);
-        console.log(response);
       } catch (e) {
           console.error("Update failed due to false server response: "+e);
+          console.error("Server response:");
+          console.log(response);
           promise.reject("update failed")
       }
         if (localStorageData.settings.version < response.version) {
@@ -235,10 +259,7 @@ async function validateVersion(){
               serverAddr : response.serverAddr,
               version : response.version
             }
-          )}).then(()=>console.log("config updated to version: "+ response.version));
-          console.log("Config updated.");
-          console.log("old config: " + JSON.stringify(localStorageData.settings));
-          console.log("update: " + JSON.stringify(response));
+          )}).then(()=>console.log("Config updated to version: "+ response.version));
           resolve("updated")
         }else {
           console.log("Config up to date.");
@@ -255,14 +276,14 @@ async function validateVersion(){
 //handles browserAction clicks. fires startStudyScheduler if scheduler is not running, opens study_thanks.html if it has
 async function handleBrowserAction () {
   console.log("browser action triggered");
-
-
+  console.log(await browser.alarms.getAll());
   if (await checkSettings()) {
     if (!schedulerRunning) {
-      if (typeof localStorageData != 'undefined' && typeof localStorageData.user != 'undefined') {
+      console.log("start scheduler");
         startStudyScheduler();
-      }
+
     }else {
+      console.log("show thanks");
         browser.tabs.create({url:'/src/study_thanks.html'})
     }
   }else{
@@ -292,9 +313,17 @@ async function handleMessage(request, sender, sendResponse){
     }
 }
 
+//handles alarms, particularly from the studyScheduler
+function handleAlarm(alarmInfo) {
+  if (alarmInfo.name == "studyScheduler") {
+    console.log("Alarm "+alarmInfo.name+" triggered. Next at "+alarmInfo.scheduledTime);
+    runQuery(localStorageData.user.keywords)
+  }
+}
+
 //callback for install event
-function handleInstall(details){
-    browser.storage.local.set(config);
+async function handleInstall(details){
+    await updateLocalStorageData();
     displayPrivacyPage();
     validateVersion();
     if (details.temporary) {
@@ -309,6 +338,7 @@ function handleStartup(){
   console.log("Startup registered");
   setTimeout(startStudyScheduler,1000*30);
 }
+
 //find next scheduled study time by comparing schedule from config data to current hour
 function getNextInterval(time,schedule) {
   let t = new Date(time);
@@ -351,12 +381,14 @@ function shuffleArray(array) {
   return shuffledArray;
 }
 
-
+//helper function to detect testing/temporary install
 function getMode(){
   return testing;
 }
+
 browser.runtime.onStartup.addListener(handleStartup);
 browser.runtime.onInstalled.addListener(handleInstall);
 browser.browserAction.onClicked.addListener(handleBrowserAction);
 browser.runtime.onMessage.addListener(handleMessage);
 browser.storage.onChanged.addListener(updateLocalStorageData);
+browser.alarms.onAlarm.addListener(handleAlarm);

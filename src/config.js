@@ -46,9 +46,6 @@ export function setConfig(update){
 export function getSelectors(){
   return config.selectors;
 }
-export function getStudy(){
-  return config.study
-}
 export function getConfig(){
   return config;
 }

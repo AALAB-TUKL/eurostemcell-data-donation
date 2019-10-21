@@ -59,6 +59,7 @@
             <br>
           <span class="note">*Note: At this point we are only studying the impact of Google advertising in the four English speaking countries above. We will consider data from other countries to guide future research.</span>
         </div>
+
         <div class="option_item">
           <label for="age_radio">Your age range</label><br>
               <fieldset id="age_radio">
@@ -104,6 +105,15 @@
             <input required id="contacted_yes" type="radio" name="contacted" value="false"><label for="contacted_yes">Yes</label><br>
           </fieldset>
             <span class="note">If Yes: We’d like to hear about your experience. Please contact us <a href="https://www.eurostemcell.org/datadonate/contact">here</a>.</span>
+        </div>
+        <div class="option_item">
+          <label for="city_radio">What is the next largest city near you?*</label><br>
+          <fieldset id="city_radio">
+            <input required id="city_yes" type="radio" name="city"><label for="city_yes">City: <input type="text" name="city_name" id="city_name" maxlength="30" size="30" pattern="[\w]+"></input></label>
+            <input required id="city_no" type="radio" name="city" ><label for="city_no">Prefer not to say<input type="hidden" name="city_name" value="null"></input></label>
+          </fieldset>
+            <br>
+          <span class="note">*Note: Please enter only letters. If you feel uncomfortable answering this, please choose "Prefer not to say".</span>
         </div>
         <button id = "submit" type="submit">Save</button><span id="submit_failed"></span>
 

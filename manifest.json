@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "EuroStemCell Data Collection",
-  "version": "3.2.3",
+  "version": "3.2.9",
 
   "description": "Collects data from Google web search for a cooperative research project of Algorithm Accountability Lab (GER) and EuroStemCell (UK)",
   "homepage_url": "https://www.eurostemcell.org/datadonate",
@@ -30,7 +30,8 @@
   "https://www.eurostemcell.org/sites/default/files/css/*",
   "activeTab",
   "tabs",
-  "storage"
+  "storage",
+  "alarms"
 ],
 
 "web_accessible_resources": [

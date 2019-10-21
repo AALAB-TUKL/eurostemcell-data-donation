@@ -12,10 +12,10 @@ browser.storage.local.get('lastSubmit').then((d)=>{
 })
 
 function showSubmission(data){
-  if (typeof data == 'undefined' || JSON.stringify(data) == '{}') {
+  if (typeof data == 'undefined' || JSON.stringify(data) == '{}' || typeof data[0] == 'undefined' || !data[0]) {
     donation.textContent = 'No submission found, please wait for the next donation interval and assure that you filled out the survey';
   }else {
-    document.getElementById('time').textContent = 'Your last donation was submitted on ' + data.search_date +'.\nSee below for more Details.'
+    document.getElementById('time').textContent = 'Your last donation was submitted on ' + data.search_date +' following a search for \''+decodeURIComponent(data.keyword)+'\'.'+'\nSee below for more Details.'
     document.getElementById('website').href = manifest.homepage_url;
     for (cat of relevant) {
       if (data[cat].length == 0) {
