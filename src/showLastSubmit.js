@@ -12,7 +12,7 @@ browser.storage.local.get('lastSubmit').then((d)=>{
 })
 
 function showSubmission(data){
-  if (typeof data == 'undefined' || JSON.stringify(data) == '{}' || typeof data[0] == 'undefined' || !data[0]) {
+  if (typeof data == 'undefined' || JSON.stringify(data) == '{}' ) {
     donation.textContent = 'No submission found, please wait for the next donation interval and assure that you filled out the survey';
   }else {
     document.getElementById('time').textContent = 'Your last donation was submitted on ' + data.search_date +' following a search for \''+decodeURIComponent(data.keyword)+'\'.'+'\nSee below for more Details.'

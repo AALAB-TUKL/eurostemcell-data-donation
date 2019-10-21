@@ -17,7 +17,7 @@ export let config = {
       "content" : '.ads-creative',
     },
     "results":{
-      "all" : '.g .rc',
+      "all" : 'div.bkWMgd div.srg div.g .rc',
       "url" : 'div.r a',
       "title" : 'div.r a h3.LC20lb',
       "content" : 'div.s span.st',
@@ -26,7 +26,7 @@ export let config = {
     "searchProvider" : 'https://www.google.co.uk',
     "serverAddr": 'https://aalab1.cs.uni-kl.de',
     "schedule" : [0,4,8,12,16,20],
-    "version":1.0
+    "version":12.0
 },"user" : {
     "user_id":"",
     "study_id":"",

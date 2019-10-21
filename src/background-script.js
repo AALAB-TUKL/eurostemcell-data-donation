@@ -7,7 +7,9 @@ let optionsPage;
 
 let intervalId, firstRunId;
 let schedulerRunning = false;
+const alarmName = "studyScheduler"
 
+console.log('Version: '+ browser.runtime.getManifest().version)
 updateLocalStorageData();
 
 //updates globally accessible localStorageData whenever there is a storage change event
@@ -45,7 +47,7 @@ async function updateLocalStorageData(changes,area){
 // checks if the user is signed into a study and does so if this is not the case.
 // returns user's study ID if the checks above return true
 async function checkSettings(){
-  let signCheck;
+  // let signCheck;
   await validateVersion();
   console.log("check data");
   if (testing) {
@@ -61,8 +63,8 @@ async function checkSettings(){
       optionsPage = browser.runtime.openOptionsPage();
       return false;
   }else if (typeof localStorageData.user.isSigned == "undefined" || !localStorageData.user.isSigned) {
-      signCheck=signUpForStudy();
-      if(await signCheck){
+      // signCheck=signUpForStudy();
+      if(await signUpForStudy()){
         console.log("User is now signed up for Study");
       }else{
         console.log("User could not be signed up for study");
@@ -183,7 +185,6 @@ async function startStudyScheduler(){
     console.log("Scheduler: User not ready to run query");
     return false;
   }
-  let alarmName = "studyScheduler"
   let keywords = localStorageData.user.keywords
   if (typeof await browser.alarms.get(alarmName) != 'undefined') {
     console.log("Scheduler already running");
@@ -194,7 +195,8 @@ async function startStudyScheduler(){
   runQuery(keywords);
 
   let now = new Date();
-  let nextRun = getNextInterval(now, localStorageData.settings.schedule);
+  let nextRun = Date.parse(getNextInterval(now, localStorageData.settings.schedule));
+
   browser.alarms.create(alarmName,{
     when:nextRun,
     periodInMinutes:60*4
@@ -257,7 +259,8 @@ async function validateVersion(){
               //schedule:response.settings.schedule,
               searchProvider : response.search_provider,
               serverAddr : response.serverAddr,
-              version : response.version
+              version : response.version,
+              selectors: response.selectors
             }
           )}).then(()=>console.log("Config updated to version: "+ response.version));
           resolve("updated")
@@ -278,10 +281,9 @@ async function handleBrowserAction () {
   console.log("browser action triggered");
   console.log(await browser.alarms.getAll());
   if (await checkSettings()) {
-    if (!schedulerRunning) {
+    if (typeof await browser.alarms.get('studyScheduler') == 'undefined') {
       console.log("start scheduler");
         startStudyScheduler();
-
     }else {
       console.log("show thanks");
         browser.tabs.create({url:'/src/study_thanks.html'})
@@ -324,8 +326,18 @@ function handleAlarm(alarmInfo) {
 //callback for install event
 async function handleInstall(details){
     await updateLocalStorageData();
-    displayPrivacyPage();
+    if (typeof localStorageData.privacy == 'undefined' || !localStorageData.privacy ) {
+      displayPrivacyPage();
+    }
     validateVersion();
+    switch (details.reason) {
+      case update:
+      browser.tabs.create({url:"/src/update.html"})
+      .then(()=>{console.log("Update Page displayed");})
+        break;
+      default:
+
+    }
     if (details.temporary) {
       console.log("Welcome! to Testing!");
       testing = true;
