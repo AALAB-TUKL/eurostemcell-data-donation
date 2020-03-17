@@ -109,7 +109,7 @@
         <div class="option_item">
           <label for="city_radio">What is the next largest city near you?*</label><br>
           <fieldset id="city_radio">
-            <input required id="city_yes" type="radio" name="city"><label for="city_yes">City: <input type="text" name="city_name" id="city_name" maxlength="30" size="30" pattern="[\w]+"></input></label>
+            <input required id="city_yes" type="radio" name="city"><label for="city_yes">City: <input type="text" name="city_name" id="city_name" maxlength="30" size="30" pattern="[\w\d\s\/-]+"></input></label>
             <input required id="city_no" type="radio" name="city" ><label for="city_no">Prefer not to say<input type="hidden" name="city_name" value="null"></input></label>
           </fieldset>
             <br>

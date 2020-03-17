@@ -2,21 +2,33 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://www.eurostemcell.org/sites/default/files/css/css_UDqJE0cISXkxRauSGVFr_i4Cz6rbJ4xHfU74cyl-fQQ.css">
-    <link rel="stylesheet" href="https://www.eurostemcell.org/sites/default/files/css/css_kvp4i0Eo7vdjaq9U67tRTCNNBafho4YkU6vWj_3-j1U.css">
+
     <link rel="stylesheet" href="../src/study_thanks.css">
     <script type="application/javascript" src="../src/browser-polyfill.js"></script>
     <title>EuroStemCell Data Donation</title>
   </head>
   <body>
+  <div class="header">
+    <a class="website logo" ><img src='../icons/ESCfinalCMYK_50%.png' alt=""> </a>
+      <ul>
+        <li><a href="./study_thanks.html">Last Submission</a></li>
+        <li><a id="contact">Contact</a></li>
+        <li><a class="website">About</a></li>
+        <li><a id="FAQ">FAQ</a></li>
+        <li><a class="active" id="privacy" href="./study_privacy">Privacy</a></li>
+        <li><a id="code">Code</a></li>
+      </ul>
+  </div>
+
   <div class="text">
 
-    <h1>Privacy Statement</h1>
+      <button type="button" id="toOptions"name="toOptions">Click here to fill out the survey and join the project!</button>
+      <h1>Privacy Statement</h1>
     <p>
       You have downloaded our browser plug-in, which allows us to automatically
       submit search queries to Google up to six times a day, the results of which are
       automatically sent to a collection server in Germany.<br>
-      First, you will have to <b>read, understand and accept this privacy statement.</b> If you have questions, contact us on our <a class="website">website</a>. Then fill in a demographic survey to provide some statistical data and allow us to
+      First, you will have to <b>read, understand and accept this privacy statement by clicking on the green button.</b> If you have questions, contact us on our <a class="website">website</a>. Then fill in a demographic survey to provide some statistical data and allow us to
       assign you to a study with respective settings such as a set of keywords and the
       URL of a search provider. <br>
        The plugin sends the query along with the current settings of the plugin,
@@ -73,10 +85,10 @@
      <p>
     I agree that the following data will be collected, processed and published:
     <ul>
-      <li>The User ID</li>
+    <li>The User ID</li>
     <li>The Study ID</li>
-    <li>The config version</li>
-    <li>The exact search query</li>
+    <li>The settings version</li>
+    <li>The exact search queries with all information mentioned above</li>
     <li>The time of the search</li>
     <li>The result of the search (everything on the first page of the search results)</li>
     <li>The language setting of the browser</li>
@@ -99,8 +111,9 @@
 
 
     </p>
-    <button type="button" id="toOptions"name="toOptions">Sign up and join the project!</button>
+
     </div>
   </body>
-  <script type="text/javascript" src="../src/study_startup.js"></script>
+  <script type="text/javascript" src="/src/study_startup.js"></script>
+  <script type="text/javascript" src="/src/headerInjects.js"></script>
 </html>

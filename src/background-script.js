@@ -195,11 +195,12 @@ async function startStudyScheduler(){
   runQuery(keywords);
 
   let now = new Date();
-  let nextRun = Date.parse(getNextInterval(now, localStorageData.settings.schedule));
-
+  let nextRun = new Date(getNextInterval(now, localStorageData.settings.schedule)).getTime();
+  let periodInMinutes = 60*4;
+  console.log("nextRUn: " + nextRun);
   browser.alarms.create(alarmName,{
     when:nextRun,
-    periodInMinutes:60*4
+    periodInMinutes:periodInMinutes
   })
   schedulerRunning = true;
   console.log("Alarm created: "+alarmName);
@@ -255,14 +256,15 @@ async function validateVersion(){
           promise.reject("update failed")
       }
         if (localStorageData.settings.version < response.version) {
-          browser.storage.local.set({settings:Object.assign(localStorageData.settings,{
+          browser.storage.local.set({
+            settings:Object.assign(localStorageData.settings,{
               //schedule:response.settings.schedule,
               searchProvider : response.search_provider,
               serverAddr : response.serverAddr,
               version : response.version,
-              selectors: response.selectors
-            }
-          )}).then(()=>console.log("Config updated to version: "+ response.version));
+            }),
+            selectors: response.selectors.selectors
+        }).then(()=>console.log("Config updated to version: "+ response.version));
           resolve("updated")
         }else {
           console.log("Config up to date.");
@@ -325,6 +327,7 @@ function handleAlarm(alarmInfo) {
 
 //callback for install event
 async function handleInstall(details){
+  browser.runtime.setUninstallURL("https://www.eurostemcell.org/datadonation/offboarding")
     await updateLocalStorageData();
     if (typeof localStorageData.privacy == 'undefined' || !localStorageData.privacy ) {
       displayPrivacyPage();
@@ -348,7 +351,15 @@ async function handleInstall(details){
 
 function handleStartup(){
   console.log("Startup registered");
-  setTimeout(startStudyScheduler,1000*30);
+  browser.runtime.setUninstallURL("https://www.eurostemcell.org/datadonation/offboarding")
+  browser.tabs.create({url:"/src/offboarding.html"})
+  .then(()=>{console.log("Offboarding Page displayed");})
+  if (isStudyOver()) {
+      console.log('Study is over, no scheduler started');
+  }else {
+      setTimeout(startStudyScheduler,1000*30);
+  }
+
 }
 
 //find next scheduled study time by comparing schedule from config data to current hour
@@ -396,6 +407,10 @@ function shuffleArray(array) {
 //helper function to detect testing/temporary install
 function getMode(){
   return testing;
+}
+
+function isStudyOver(){
+  return True;
 }
 
 browser.runtime.onStartup.addListener(handleStartup);
